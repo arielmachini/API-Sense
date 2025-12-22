@@ -1,0 +1,29 @@
+@import url(https://fonts.bunny.net/css?family=cantarell:400,700);
+
+* {
+    font-family: 'Cantarell', sans-serif;
+}
+
+*.application-name {
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-image: linear-gradient(45deg, #E04F67, #C72C4A, #7B1E6A, #4A1442);
+    color: #E04F67;
+    cursor: default;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+p.text-justify {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+img.icon {
+    height: 1em;
+    padding-right: 3px;
+}
