@@ -6,7 +6,7 @@ $progressMade = intval($progressMade);
 ?>
 
 <div class="bg-light mb-4 p-4 rounded-4">
-    <ul class="justify-content-center nav nav-pills">
+    <ul class="nav nav-pills">
         <li>
             <x-nav-link href="/{{ Constants::ROUTE_ASSESSMENT }}/1" :active="preg_match('/^' . Constants::ROUTE_ASSESSMENT . '\/\d+$/', request()->path())">
                 <i class="bi bi-code pe-2"></i>Metrics

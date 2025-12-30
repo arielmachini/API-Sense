@@ -2,7 +2,7 @@
 use App\Constants;
 ?>
 
-<x-layout pageTitle="{{ Constants::TITLE_ASSESSMENT_PAGE }}">
+<x-layout pageTitle="{{ Constants::TITLE_ASSESSMENT_UPLOAD_OAS_PAGE }}">
     <x-assessment-menu/>
 
     <div class="row">
@@ -24,5 +24,3 @@ use App\Constants;
         </div>
     </div>
 </x-layout>
-
-<script src="{{ asset(Constants::FOLDER_JS . 'assessment-remember-scrollbars.js') }}"></script>
