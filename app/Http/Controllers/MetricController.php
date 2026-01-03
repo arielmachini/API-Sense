@@ -15,6 +15,6 @@ class MetricController extends Controller {
      * assessment page, as this only requires IDs and names.
      */
     public static function getListOfMetrics() {
-        return Metric::select('id', 'name')->orderBy('id')->get();
+        return Metric::select('id', 'name')->orderBy('id')->get(); // ToDo: Also fetch usability attributes and REST API components for each metric.
     }
 }

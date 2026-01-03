@@ -20,7 +20,7 @@ Route::get('/sources/{id}', function() {
 Route::view('/restore', 'restore');
 Route::post('/restore', function() { // MAYBE CHANGE THIS? GET THE ASSESSMENT OBJECT
     request()->validate(
-        ['code' => 'required|uuid']
+        ['code' => ['required', 'uuid']]
     );
 
     $evaluationCode = request('code');

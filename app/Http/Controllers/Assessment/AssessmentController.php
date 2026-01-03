@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Assessment;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assessment;
+use App\Rules\ValidOAS;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\File;
 
 class AssessmentController extends Controller {
     public function loadAssessment(Request $request) {
@@ -53,7 +55,15 @@ class AssessmentController extends Controller {
     }
 
     public function uploadOAS(Request $request) {
-        //
+        $request->validate(
+            ['OAS' => ['required', File::types('json')->max(5 * 1024)]] //, new ValidOAS]] ToDo: Finish coding this rule.
+        );
+
+        $uploadedOAS = json_decode(file_get_contents($request['OAS']), true);
+
+        $_SESSION['OAS'] = $uploadedOAS;
+
+        $this->loadAssessment($request);
     }
 
     /* --- PRIVATE FUNCTIONS --- */

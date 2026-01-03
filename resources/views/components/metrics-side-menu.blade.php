@@ -10,7 +10,7 @@ $listOfMetrics = MetricController::getListOfMetrics();
 <div class="border-end border-light-subtle col-3 me-3 small" id="side-menu" style="max-height: 1000px; overflow: scroll;">
     <div class="mb-3">
         <a aria-controls="groupingCollapse" aria-expanded="false" class="text-end" data-bs-toggle="collapse" href="#groupingCollapse" role="button">
-            <p class="fw-bold small">Edit grouping<i class="bi bi-gear-fill ms-2"></i></p>
+            <p class="fw-bold small">Grouping<i class="bi bi-gear-fill ms-2"></i></p>
         </a>
 
         <div class="bg-light border-bottom border-light-subtle collapse p-2 rounded-3" id="groupingCollapse">
