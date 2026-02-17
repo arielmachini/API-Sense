@@ -2,9 +2,14 @@
 
 <?php
 use App\Constants;
+use App\Http\Controllers\AttributeController;
+use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MetricController;
 
-$listOfMetrics = MetricController::getListOfMetrics();
+$listOfMetrics = MetricController::getMetricsAndCategories();
+
+$listOfAttributes = AttributeController::index();
+$listOfComponents = ComponentController::index();
 ?>
 
 <div class="border-end border-light-subtle col-3 me-3 small" id="side-menu" style="max-height: 1000px; overflow: scroll;">
@@ -40,48 +45,133 @@ $listOfMetrics = MetricController::getListOfMetrics();
     <ul class="flex-column nav nav-pills" id="metricsNoGrouping">
     @foreach ($listOfMetrics as $metric)
         <li class="nav-item">
-            <a {!! $metric['id'] == $currentMetricID ? 'aria-current="page"' : '' !!} class="{{ $metric['id'] == $currentMetricID ? 'active fw-bold' : '' }} nav-link" href="/{{ Constants::ROUTE_ASSESSMENT }}/{{ $metric['id'] }}" style="--bs-nav-pills-link-active-color: var(--text-secondary-emphasis); --bs-nav-pills-link-active-bg: #F8F9FA;"> {{-- The Bootstrap class "btn-light" uses #F8F9FA for background color. --}}
-                {!! isset($userProgress[$metric['id']]) ? '<i class="bi bi-check-lg text-success"></i>' : '' !!}
-                #{{ $metric['id'] }} {{$metric['name'] }}
+            <a {!! $metric['ID'] == $currentMetricID ? 'aria-current="page"' : '' !!} class="{{ $metric['ID'] == $currentMetricID ? 'active fw-bold' : '' }} nav-link" href="/{{ Constants::ROUTE_ASSESSMENT }}/{{ $metric['ID'] }}" style="--bs-nav-pills-link-active-color: var(--text-secondary-emphasis); --bs-nav-pills-link-active-bg: #F8F9FA;"> {{-- The Bootstrap class "btn-light" uses #F8F9FA for background color. --}}
+                {!! isset($userProgress[$metric['ID']]) ? '<i class="bi bi-check-lg text-success"></i>' : '' !!}
+                {{ $metric['Name'] }}
             </a>
         </li>
     @endforeach
     </ul>
 
-    <ul class="d-none flex-column nav nav-pills" id="metricsByAttribute">
-    @foreach ($listOfMetrics as $metric)
+    <div class="d-none" id="metricsByAttribute">
+    @foreach ($listOfAttributes as $attribute)
+        <p class="bg-dark bg-gradient fw-bold p-2 rounded text-light">{{ $attribute['Name'] }}</p>
+        <ul class="flex-column nav nav-pills mb-3">
+        @foreach ($listOfMetrics as $metric)
+            @if (in_array($attribute['Name'], str_getcsv($metric['Usability_Attributes'])))
+                <li class="nav-item">
+                    <a {!! $metric['ID'] == $currentMetricID ? 'aria-current="page"' : '' !!} class="{{ $metric['ID'] == $currentMetricID ? 'active fw-bold' : '' }} nav-link" href="/{{ Constants::ROUTE_ASSESSMENT }}/{{ $metric['ID'] }}" style="--bs-nav-pills-link-active-color: var(--text-secondary-emphasis); --bs-nav-pills-link-active-bg: #F8F9FA;">
+                        {!! isset($userProgress[$metric['ID']]) ? '<i class="bi bi-check-lg text-success"></i>' : '' !!}
+                        {{ $metric['Name'] }}
+                    </a>
+                </li>
+            @endif
+        @endforeach
+        </ul>
     @endforeach
-    </ul>
+    </div>
     
-    <ul class="d-none flex-column nav nav-pills" id="metricsByComponent">
-    @foreach ($listOfMetrics as $metric)
+    <div class="d-none" id="metricsByComponent">
+    @foreach ($listOfComponents as $component)
+        @if (is_null($component['ParentComponent']))
+            <p class="bg-dark bg-gradient fw-bold p-2 rounded text-light">{{ $component['Name'] }}</p>
+            <ul class="flex-column nav nav-pills">
+            @foreach ($listOfMetrics as $metric)
+                @if (in_array($component['Name'], str_getcsv($metric['REST_Components'])))
+                    <li class="nav-item">
+                        <a {!! $metric['ID'] == $currentMetricID ? 'aria-current="page"' : '' !!} class="{{ $metric['ID'] == $currentMetricID ? 'active fw-bold' : '' }} nav-link" href="/{{ Constants::ROUTE_ASSESSMENT }}/{{ $metric['ID'] }}" style="--bs-nav-pills-link-active-color: var(--text-secondary-emphasis); --bs-nav-pills-link-active-bg: #F8F9FA;">
+                            {!! isset($userProgress[$metric['ID']]) ? '<i class="bi bi-check-lg text-success"></i>' : '' !!}
+                            {{ $metric['Name'] }}
+                        </a>
+                    </li>
+                @endif
+            @endforeach
+            </ul>
+        @endif
     @endforeach
-    </ul>
+    </div>
 </div>
 
 <script type="text/javascript">
+    const metricsMenuNoGrouping = document.getElementById('metricsNoGrouping');
+    const metricsMenuByAttribute = document.getElementById('metricsByAttribute');
+    const metricsMenuByComponent = document.getElementById('metricsByComponent');
+
     const groupByRadios = document.querySelectorAll('#groupingCollapse input[type="radio"]');
+
+    function groupMetricsNoGrouping() {
+        groupByRadios[0].checked = true;
+        groupByRadios[1].checked = false;
+        groupByRadios[2].checked = false;
+
+        metricsMenuNoGrouping.classList.remove('d-none');
+        metricsMenuByAttribute.classList.add('d-none');
+        metricsMenuByComponent.classList.add('d-none');
+    }
+
+    function groupMetricsByAttribute() {
+        groupByRadios[0].checked = false;
+        groupByRadios[1].checked = true;
+        groupByRadios[2].checked = false;
+
+        metricsMenuNoGrouping.classList.add('d-none');
+        metricsMenuByAttribute.classList.remove('d-none');
+        metricsMenuByComponent.classList.add('d-none');
+    }
+
+    function groupMetricsByComponent() {
+        groupByRadios[0].checked = false;
+        groupByRadios[1].checked = false;
+        groupByRadios[2].checked = true;
+
+        metricsMenuNoGrouping.classList.add('d-none');
+        metricsMenuByAttribute.classList.add('d-none');
+        metricsMenuByComponent.classList.remove('d-none');
+    }
+
+    if (document.cookie.includes('groupingPreference=')) { // This block of code restores the user's preference for grouping metrics.
+        let groupingPreference = document.cookie.split('; ')
+            .find((cookie) => cookie.startsWith('groupingPreference=')) // Find the cookie...
+            ?.split('=')[1]; // ...and retrieve its value.
+
+        switch (groupingPreference) {
+            case 'noGrouping':
+                groupMetricsNoGrouping();
+
+                break;
+            case 'groupByAttribute':
+                groupMetricsByAttribute();
+
+                break;
+            case 'groupByComponent':
+                groupMetricsByComponent();
+
+                break;
+            default:
+                groupMetricsNoGrouping();
+
+                document.cookie = 'groupingPreference=noGrouping; /{{ Constants::ROUTE_ASSESSMENT }}';
+
+                break;
+        }
+    }
 
     groupByRadios.forEach(radio => {
         radio.addEventListener('change', function () {
             const radioButtonName = this.getAttribute('id');
 
-            const metricsMenuNoGrouping = document.getElementById('metricsNoGrouping');
-            const metricsMenuByAttribute = document.getElementById('metricsByAttribute');
-            const metricsMenuByComponent = document.getElementById('metricsByComponent');
-
             if (radioButtonName == 'noGrouping') {
-                metricsMenuNoGrouping.classList.remove('d-none');
-                metricsMenuByAttribute.classList.add('d-none');
-                metricsMenuByComponent.classList.add('d-none');
+                groupMetricsNoGrouping();
+
+                document.cookie = 'groupingPreference=noGrouping; /{{ Constants::ROUTE_ASSESSMENT }}';
             } else if (radioButtonName == 'groupByAttribute') {
-                metricsMenuNoGrouping.classList.add('d-none');
-                metricsMenuByAttribute.classList.remove('d-none');
-                metricsMenuByComponent.classList.add('d-none');
+                groupMetricsByAttribute();
+
+                document.cookie = 'groupingPreference=groupByAttribute; /{{ Constants::ROUTE_ASSESSMENT }}';
             } else if (radioButtonName == 'groupByComponent') {
-                metricsMenuNoGrouping.classList.add('d-none');
-                metricsMenuByAttribute.classList.add('d-none');
-                metricsMenuByComponent.classList.remove('d-none');
+                groupMetricsByComponent();
+
+                document.cookie = 'groupingPreference=groupByComponent; /{{ Constants::ROUTE_ASSESSMENT }}';
             }
         });
     });

@@ -17,7 +17,7 @@
             
             <input class="form-control form-control-lg mb-3" id="code" maxlength="36" name="code" required type="text" value="{{ old('code') }}"> <!-- The length of a UUID is 36 characters. -->
             
-            <button class="btn btn-lg btn-primary" type="submit">Restore progress</button>
+            <button class="btn btn-lg btn-outline-primary" type="submit">Restore progress</button>
         </form>
     </div>
 </x-layout>

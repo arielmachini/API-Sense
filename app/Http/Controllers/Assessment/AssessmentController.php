@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Assessment;
 
+use App\Constants;
 use App\Http\Controllers\Controller;
 use App\Models\Assessment;
 use App\Rules\ValidOAS;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
 
+/**
+ * Controller for handling usability assessments.
+ */
 class AssessmentController extends Controller {
     public function loadAssessment(Request $request) {
         if ($request->code) {
@@ -46,7 +50,17 @@ class AssessmentController extends Controller {
 
     /* --- OPERATIONAL FUNCTIONS --- */
     public function endAssessment(Request $request) {
-        //
+        setcookie(
+            'user_progress',
+            NULL,
+            time() - 3600,
+            path: '/' . Constants::ROUTE_ASSESSMENT,
+            httponly: true
+        );
+
+        unset($_SESSION['OAS']);
+
+        return redirect('/assessment/1');
     }
 
     public function saveAssessment(Request $request) {

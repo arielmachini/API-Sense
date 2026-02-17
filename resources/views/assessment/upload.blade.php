@@ -3,7 +3,7 @@ use App\Constants;
 ?>
 
 <x-layout pageTitle="{{ Constants::TITLE_ASSESSMENT_UPLOAD_OAS_PAGE }}">
-    <x-assessment-menu/>
+    <x-assessment-menu :progressMade="$progressMade" />
 
     <div class="mb-4 row">
         <div class="col">
@@ -22,7 +22,7 @@ use App\Constants;
                 In this page, you can upload the OpenAPI specification of your web API to automate some of the measurements needed to obtain a usability score. <strong>Please note that:</strong>
             </p>
             <ul>
-                <li>Only versions 3.0.x and 3.1.x are supported.</li>
+                <li>Only versions 3.0.x and 3.1.x of OpenAPI are supported.</li>
                 <li>The specification must be in JSON format, and must be valid.</li>
                 <li>Only a limited number of (objective) metrics can be automatically measured with an specification.</li>
                 <li>The maximum permitted file size is 5 MB.</li>
@@ -44,7 +44,7 @@ use App\Constants;
 
             <input class="form-control form-control-lg mb-3" id="OAS" name="OAS" required type="file">
 
-            <button class="btn btn-lg btn-success" type="submit">Upload</button>
+            <button class="btn btn-lg btn-outline-success" type="submit">Upload</button>
         </form>
     </div>
 </x-layout>
