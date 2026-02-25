@@ -15,7 +15,7 @@ $progressMade = intval($progressMade);
 
         <li>
             <x-nav-link href="/{{ Constants::ROUTE_ASSESSMENT_UPLOAD_OAS }}" title="Upload the OpenAPI specification of your web API to automate measurement" :active="request()->is(Constants::ROUTE_ASSESSMENT_UPLOAD_OAS)">
-                <i class="bi bi-filetype-json pe-2"></i>Upload an OAS
+                <i class="bi bi-braces pe-2"></i>Upload an OAS
             </x-nav-link>
         </li>
 

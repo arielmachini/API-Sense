@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Assessment;
 
 use App\Constants;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UploadOASRequest;
 use App\Models\Assessment;
 use App\Rules\ValidOAS;
+use cebe\openapi\Reader;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
 
@@ -68,16 +70,22 @@ class AssessmentController extends Controller {
         // if assessment exists updatefunction
     }
 
-    public function uploadOAS(Request $request) {
-        $request->validate(
-            ['OAS' => ['required', File::types('json')->max(5 * 1024)]] //, new ValidOAS]] ToDo: Finish coding this rule.
-        );
+    public function deleteOAS() {
+        unset($_SESSION['OAS']);
 
-        $uploadedOAS = json_decode(file_get_contents($request['OAS']), true);
+        return view('assessment.assess')
+            ->with('progressMade', $this->getCurrentUserProgress());
+    }
 
-        $_SESSION['OAS'] = $uploadedOAS;
+    public function uploadOAS(UploadOASRequest $request) {
+        $uploadedOAS = $request->validated()['OAS'];
+        
+        $uploadedOAS = $uploadedOAS === 'json' ? Reader::readFromJsonFile($uploadedOAS) : Reader::readFromYamlFile($uploadedOAS);
 
-        $this->loadAssessment($request);
+        session()->put('OAS', $uploadedOAS);
+
+        return view('assessment.upload')
+            ->with('progressMade', $this->getCurrentUserProgress());
     }
 
     /* --- PRIVATE FUNCTIONS --- */
