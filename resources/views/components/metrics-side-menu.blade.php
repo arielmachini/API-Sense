@@ -73,7 +73,7 @@ $listOfComponents = ComponentController::index();
     
     <div class="d-none" id="metricsByComponent">
     @foreach ($listOfComponents as $component)
-        @if (is_null($component['ParentComponent']))
+        @if ($component['ParentComponent'] === null)
             <p class="bg-dark bg-gradient fw-bold p-2 rounded text-light">{{ $component['Name'] }}</p>
             <ul class="flex-column nav nav-pills">
             @foreach ($listOfMetrics as $metric)

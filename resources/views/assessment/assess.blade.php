@@ -38,7 +38,7 @@ if (!empty($userProgress)) { // Check if the user progress cookie exists.
             <div class="border-bottom border-light-subtle mb-4 pb-4 row">
                 <div class="border-end border-light-subtle col" style="text-align: justify;">
                     {{ $metric['Description'] }}
-                    @if (!is_null($metric['NotApplicableIf']))
+                    @if ($metric['NotApplicableIf'] !== null)
                         <span class="badge rounded-pill text-bg-warning">Note</span> This metric <strong>does not apply</strong> {{ lcfirst($metric['NotApplicableIf']) }}
                     @endif
                 </div>
@@ -82,7 +82,7 @@ if (!empty($userProgress)) { // Check if the user progress cookie exists.
                             </option>
                         @endforeach
 
-                        @if (!is_null($metric['NotApplicableIf']))
+                        @if ($metric['NotApplicableIf'] !== null)
                             <option {{ ($selectedValue ?? null) == 'NA' ? 'selected' : '' }} value="NA">
                                 None: This metric does not apply to my web API
                             </option>

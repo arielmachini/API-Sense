@@ -4,28 +4,28 @@ namespace App\Http\Controllers\Assessment;
 
 use App\Constants;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MetricController;
 use App\Http\Requests\UploadOASRequest;
 use App\Models\Assessment;
-use App\Rules\ValidOAS;
 use cebe\openapi\Reader;
+use cebe\openapi\spec\OpenApi;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\File;
 
 /**
  * Controller for handling usability assessments.
  */
 class AssessmentController extends Controller {
     public function loadAssessment(Request $request) {
-        if ($request->code) {
+        if ($request->get('code')) {
             $recoveredAssessment = Assessment::findOr(
                 $request->code,
                 'code',
-                redirect('/assessment/1') // If the provided UUID does not match with any of the stored assessments, start a new assessment.
+                $this->redirectToDefault() // If the provided UUID does not match with any of the stored assessments, start a new assessment.
             );
 
             session()->put('userProgress', json_encode($recoveredAssessment->json)); // CHANGE THIS TO DIVIDE IN PARTS
         } else {
-            return redirect('/assessment/1');
+            $this->redirectToDefault();
         }
     }
 
@@ -60,35 +60,55 @@ class AssessmentController extends Controller {
             httponly: true
         );
 
-        unset($_SESSION['OAS']);
+        session()->forget('OAS');
 
-        return redirect('/assessment/1');
+        $this->redirectToDefault();
     }
 
     public function saveAssessment(Request $request) {
         // Validate input and save assessment to database.
-        // if assessment exists updatefunction
+        // If assessment exists, call updateAssessment function.
     }
 
     public function deleteOAS() {
-        unset($_SESSION['OAS']);
+        session()->forget('OAS');
 
         return view('assessment.assess')
             ->with('progressMade', $this->getCurrentUserProgress());
     }
 
     public function uploadOAS(UploadOASRequest $request) {
-        $uploadedOAS = $request->validated()['OAS'];
+        $uploadedOAS = $request->validated()['OAS']; // See \App\Http\Requests\UploadOASRequest.
         
         $uploadedOAS = $uploadedOAS === 'json' ? Reader::readFromJsonFile($uploadedOAS) : Reader::readFromYamlFile($uploadedOAS);
 
         session()->put('OAS', $uploadedOAS);
 
+        $automaticAssessmentResults = $this->automaticAssessment($uploadedOAS);
+
         return view('assessment.upload')
-            ->with('progressMade', $this->getCurrentUserProgress());
+            ->with([
+                'automaticAssessmentResults' => $automaticAssessmentResults,
+                'progressMade' => $this->getCurrentUserProgress()
+            ]);
     }
 
     /* --- PRIVATE FUNCTIONS --- */
+    private function redirectToDefault() {
+        return redirect('/assessment/1');
+    }
+
+    private function automaticAssessment(OpenApi $uploadedOAS) {
+        $automaticAssessmentResults = [];
+
+        /* Metrics related to the API Request category: */
+        $automaticAssessmentResults['MetricID'] = MetricController::assessAvgNumberOfParameters($uploadedOAS);
+
+        // And so on...
+
+        return $automaticAssessmentResults;
+    }
+
     private function updateAssessment($uuid) {
         // Update only the date and JSON code of the row in the database.
     }

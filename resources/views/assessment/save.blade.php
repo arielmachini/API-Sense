@@ -11,9 +11,9 @@ use App\Constants;
         </p>
 
         @if (empty($progressMade))
-        <div class="alert alert-warning" role="alert">
-            <i class="bi bi-exclamation-triangle-fill pe-2"></i>You have not made any progress yet.
-        </div>
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle-fill pe-2"></i>You have not made any progress yet.
+            </div>
         @else
             @if ($progressMade <= 20)
                 <div class="alert alert-warning" role="alert">

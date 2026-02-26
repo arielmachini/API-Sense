@@ -1,5 +1,6 @@
 <?php
 use App\Constants;
+use cebe\openapi\spec\OpenApi;
 
 if (session()->has('OAS')) {
     $uploadedOAS = session()->get('OAS');
@@ -38,16 +39,19 @@ if (session()->has('OAS')) {
     </div>
 
     @if (session()->has('OAS'))
-        {{ $uploadedOAS->info->title . " - " . $uploadedOAS->info->description }}
-    @else
-        OAS IS NOT SET
+        <div class="row border-bottom border-light-subtle mb-4">
+            <div class="alert alert-success">
+                <h6 class="fw-bold">You have uploaded the following OpenAPI specification:</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item list-group-item-info"><strong>Title:</strong> {{ $uploadedOAS->info->title }}</li>
+                    <li class="list-group-item list-group-item-success"><strong>Description:</strong> {{ $uploadedOAS->info->description }}</li>
+                </ul>
+            </div>
+        </div>
     @endif
 
     <div class="row">
         @if ($errors->any())
-            @foreach ($errors->all() as $e)
-                <p>{{ $e }}</p>
-            @endforeach
             <div class="alert alert-warning" role="alert">
                 <i class="bi bi-exclamation-triangle-fill pe-2"></i>Please upload a valid OpenAPI specification file.
             </div>
