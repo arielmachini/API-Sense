@@ -1,6 +1,5 @@
 <?php
 use App\Constants;
-use cebe\openapi\spec\OpenApi;
 
 if (session()->has('OAS')) {
     $uploadedOAS = session()->get('OAS');
@@ -49,6 +48,8 @@ if (session()->has('OAS')) {
             </div>
         </div>
     @endif
+
+    <!-- Here I should add an alert displaying a list of the metrics that were automatically assessed using the OAS. -->
 
     <div class="row">
         @if ($errors->any())

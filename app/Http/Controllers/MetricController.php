@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Assessment\MetricAssessmentController;
 use App\Models\Metric;
 use App\Models\MetricCategoriesView;
 use cebe\openapi\spec\OpenApi;
-use SebastianBergmann\CodeUnit\FunctionUnit;
 
 /**
  * Controller for handling Metrics.
@@ -14,6 +14,10 @@ use SebastianBergmann\CodeUnit\FunctionUnit;
 class MetricController extends Controller {
     public static function index() {
         return Metric::all();
+    }
+
+    public static function findByName($name) {
+        return Metric::where('Name', '=', $name)->first();
     }
 
     /**
@@ -28,6 +32,34 @@ class MetricController extends Controller {
 
     /* --- AUTOMATIC ASSESSMENT FUNCTIONS --- */
     public static function assessAvgURLsPerResource(OpenApi $userProvidedOAS): bool {
+        $metric = MetricController::findByName('Average base URLs per resource'); // Fetch the assessed metric by name.
+
+        $pathDepthCounts = [];
+
+        foreach ($userProvidedOAS->paths as $path => $pathItem) {
+            $explodedPath = explode('\/', $path);
+            $pathDepth = count($explodedPath);
+
+            if (preg_match('/^v\d+(\.\d+)*$/i', $explodedPath[0])) { // Excludes versioning (if present) from the path length. The character ^ means "at the start of the string", v matches the character "v" (case insensitive), \d+ means "one or more digits", \. matches the character ".", * means "zero or more", and $ means "at the end of the string".
+                $pathDepth -= 1;
+            }
+
+            $pathDepthCounts[] = $pathDepth;
+        }
+
+        $averagePathDepth = array_sum($pathDepthCounts) / count($pathDepthCounts);
+
+        /* Determine the value for the metric */
+        if ($averagePathDepth <= 2) {
+            $metricValue = 1;
+        } else if ($averagePathDepth == 3) {
+            $metricValue = 0.5;
+        } else { // > 3.
+            $metricValue = 0;
+        }
+
+        (new MetricAssessmentController())->updateMetricWithValue($metric, $metricValue, true);
+
         return true;
     }
 

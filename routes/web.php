@@ -50,6 +50,6 @@ Route::group(['prefix' => 'assessment'], function() {
 
     Route::controller(MetricAssessmentController::class)->group(function() {
         Route::get('/{metric}', 'viewMetricAssessment');
-        Route::put('/{metric}', 'updateMetric');
+        Route::put('/{metric}', 'updateMetricWithRequest');
     });
 });

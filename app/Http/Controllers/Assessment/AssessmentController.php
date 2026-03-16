@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Assessment;
 
-use App\Constants;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MetricController;
 use App\Http\Requests\UploadOASRequest;
@@ -10,6 +9,7 @@ use App\Models\Assessment;
 use cebe\openapi\Reader;
 use cebe\openapi\spec\OpenApi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 /**
  * Controller for handling usability assessments.
@@ -20,12 +20,21 @@ class AssessmentController extends Controller {
             $recoveredAssessment = Assessment::findOr(
                 $request->code,
                 'code',
-                $this->redirectToDefault() // If the provided UUID does not match with any of the stored assessments, start a new assessment.
+                $this->redirectToDefault() // If the provided UUID does not match with any of the stored assessments, start a new assessment. NOTE: I THINK THIS WILL NOT WORK, IN THE ELSE BELOW I HAVE TO USE RETURN FOR THE FUNCTION TO EXECUTE.
             );
 
-            session()->put('userProgress', json_encode($recoveredAssessment->json)); // CHANGE THIS TO DIVIDE IN PARTS
+            $userProgressCookie = json_encode($recoveredAssessment['progress']);
+            $userProgressCookie = gzcompress($userProgressCookie, 9);
+
+            Cookie::queue(
+                'user_progress',
+                $userProgressCookie,
+                time() + 60 * 60 * 24 * 400, // 400 days. "Forever", according to Laravel docs.,
+                httpOnly: true
+
+            );
         } else {
-            $this->redirectToDefault();
+            return $this->redirectToDefault();
         }
     }
 
@@ -52,13 +61,7 @@ class AssessmentController extends Controller {
 
     /* --- OPERATIONAL FUNCTIONS --- */
     public function endAssessment(Request $request) {
-        setcookie(
-            'user_progress',
-            NULL,
-            time() - 3600,
-            path: '/' . Constants::ROUTE_ASSESSMENT,
-            httponly: true
-        );
+        Cookie::forget('user_progress');
 
         session()->forget('OAS');
 
@@ -102,7 +105,7 @@ class AssessmentController extends Controller {
         $automaticAssessmentResults = [];
 
         /* Metrics related to the API Request category: */
-        $automaticAssessmentResults['MetricID'] = MetricController::assessAvgNumberOfParameters($uploadedOAS);
+        $automaticAssessmentResults['MetricID'] = MetricController::assessAvgURLsPerResource($uploadedOAS);
 
         // And so on...
 
@@ -114,7 +117,7 @@ class AssessmentController extends Controller {
     }
 
     private function getCurrentUserProgress() {
-        $userProgress = $_COOKIE['user_progress'] ?? null;
+        $userProgress = Cookie::get('user_progress') ?? null;
         $progressMade = 0;
 
         if (!empty($userProgress)) {
