@@ -31,12 +31,24 @@ class MetricController extends Controller {
     }
 
     /* --- AUTOMATIC ASSESSMENT FUNCTIONS --- */
+    public function assessMetric(Metric $metric, OpenApi $userProvidedOAS) {
+        switch($metric['ID']) {
+            case 1:
+                break;
+            default:
+                return false;
+        }
+
+        (new MetricAssessmentController())->updateMetricWithValue($metric, $metricValue, true);
+
+    }
+
     public static function assessAvgURLsPerResource(OpenApi $userProvidedOAS): bool {
         $metric = MetricController::findByName('Average base URLs per resource'); // Fetch the assessed metric by name.
 
         $pathDepthCounts = [];
 
-        foreach ($userProvidedOAS->paths as $path => $pathItem) {
+        foreach ($userProvidedOAS->paths as $path => $pathDefinition) {
             $explodedPath = explode('\/', $path);
             $pathDepth = count($explodedPath);
 
@@ -64,6 +76,16 @@ class MetricController extends Controller {
     }
 
     public static function assessAvgNumberOfParameters(OpenApi $userProvidedOAS): bool {
+        $metric = MetricController::findByName('Average number of parameters'); // Fetch the assessed metric by name.
+
+        $paramCounts = [];
+
+        foreach ($userProvidedOAS->paths as $path => $pathDefinition) {
+            foreach ($pathDefinition->getOperations() as $op) {
+                var_dump($op->parameters[0]->required);
+            }
+        }
+        
         return true;
     }
 
@@ -84,6 +106,27 @@ class MetricController extends Controller {
     }
 
     public static function assessIdentificationOfRequiredParameters(OpenApi $userProvidedOAS): bool {
+        $metric = MetricController::findByName(''); // Fetch the assessed metric by name.
+        $metricValue = false;
+
+        foreach ($userProvidedOAS->paths as $path => $pathDefinition) {
+            foreach ($pathDefinition->getOperations() as  $operationDefinition) {
+
+                var_dump($op->parameters[0]->required);
+            }
+        }
+
+        /* Determine the value for the metric */
+        if ($averagePathDepth <= 2) {
+            $metricValue = 1;
+        } else if ($averagePathDepth == 3) {
+            $metricValue = 0.5;
+        } else { // > 3.
+            $metricValue = 0;
+        }
+
+        (new MetricAssessmentController())->updateMetricWithValue($metric, $metricValue, true);
+
         return true;
     }
 

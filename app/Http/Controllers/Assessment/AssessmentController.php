@@ -105,7 +105,8 @@ class AssessmentController extends Controller {
         $automaticAssessmentResults = [];
 
         /* Metrics related to the API Request category: */
-        $automaticAssessmentResults['MetricID'] = MetricController::assessAvgURLsPerResource($uploadedOAS);
+        $automaticAssessmentResults[MetricController::findByName('Average number of parameters')['ID']] = MetricController::assessAvgNumberOfParameters($uploadedOAS);
+        $automaticAssessmentResults[MetricController::findByName('Average base URLs per resource')['ID']] = MetricController::assessAvgURLsPerResource($uploadedOAS);
 
         // And so on...
 
