@@ -2,19 +2,16 @@
 
 use App\Http\Controllers\Assessment\AssessmentController;
 use App\Http\Controllers\Assessment\MetricAssessmentController;
+use App\Http\Controllers\SourceController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 Route::view('/about', 'about');
 Route::view('/model', 'model');
-Route::view('/sources', 'sources');
-Route::get('/sources/{id}', function() {
-    request()->validate(
-        ['id' => 'integer']
-    );
 
-    return view('sources', ['id']);
-});
+Route::get('/sources', [SourceController::class, 'index']);
+
+Route::get('/sources/{id}', [SourceController::class, 'show']);
 
 /* Restore progress with an evaluation code */
 Route::view('/restore', 'restore');
