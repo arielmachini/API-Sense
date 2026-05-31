@@ -3,7 +3,7 @@
 ## About
 API Sense is a tool that allows developers to assess the overall usability of their web APIs, since it is known to be a critical factor for their adoption. This tool—and the usability model it is built on top of—is meant for assessing certain aspects of a web API that can influence its usability. All metrics included in the model were extracted from reliable sources, such as academic research papers and blogs/guides written by web API experts.
 
-**Note:** Due to a shift of priorities, the development of this application is currently frozen. This repository might be archived later in the future.
+> **Note:** Due to a shift of priorities, the development of this application is currently frozen. This repository might be archived later in the future.
 
 ### Usability
 Usability is considered one of the most important software quality attributes (Nielsen, 1992) and, even though it has many definitions, the definition given by ISO 9241-11 is probably the most popular one: "The extent to which a product can be used by specified users to achieve specified goals with effectiveness, efficiency, and satisfaction in a specified context of use". This also applies to web APIs and, in a competitive market, usability can define the value and the success of an API.
